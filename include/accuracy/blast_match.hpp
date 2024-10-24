@@ -3,9 +3,6 @@
 #include <argument_parsing/accuracy_arguments.hpp>
 #include <valik/split/metadata.hpp>
 
-namespace valik
-{
-
 struct blast_match
 {
     std::string dname{};
@@ -19,7 +16,7 @@ struct blast_match
     uint64_t qbegin{};
     uint64_t qend{};
 
-    blast_match(std::vector<std::string> const & match_vec, metadata const & meta)
+    blast_match(std::vector<std::string> const & match_vec, valik::metadata const & meta)
     {
         dname = match_vec[0];
 
@@ -120,5 +117,3 @@ struct blast_match
     }
 
 };
-
-}   // namespace valik
