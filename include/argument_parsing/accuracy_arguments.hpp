@@ -5,8 +5,9 @@
 #pragma once
 
 #include <filesystem>
+#include <vector>
 
-struct configuration
+struct accuracy_arguments
 {
     std::filesystem::path truth_file{};
     std::filesystem::path test_file{};
