@@ -2,12 +2,104 @@
 // SPDX-FileCopyrightText: 2016-2024 Knut Reinert & MPI für molekulare Genetik
 // SPDX-License-Identifier: CC0-1.0
 
-#include "search_accuracy.hpp"
+#include <accuracy/search_accuracy.hpp>
 
-#include <seqan3/io/sequence_file/all.hpp>
-
-void search_accuracy(configuration const & config)
+template <typename func_t>
+void runtime_to_compile_time(func_t const & func, bool b1)
 {
-    seqan3::sequence_file_input truth{config.truth_file};
-    seqan3::sequence_file_input test{config.test_file};
+    if (b1) 
+        func.template operator()<true>();
+    else
+        func.template operator()<false>();
+}
+
+// ./evaluate --truth ../test/data/truth.gff --test ../test/data/test.gff --ref-meta ../test/data/meta.bin
+void search_accuracy(accuracy_arguments const & arguments)
+{
+    valik::minimal_metadata meta(arguments.ref_meta);    
+    runtime_to_compile_time([&]<bool truth_is_gff>()
+    {
+        using truth_match_t = std::conditional_t<truth_is_gff, valik::stellar_match, blast_match>;
+        auto truth = get_sorted_alignments<truth_match_t>(arguments.truth_file, meta);
+        seqan3::debug_stream << "Truth matches\t" << truth.size() << '\n';
+
+        runtime_to_compile_time([&]<bool test_is_gff>()
+        {
+            using test_match_t = std::conditional_t<test_is_gff, valik::stellar_match, blast_match>;
+            auto test = get_sorted_alignments<test_match_t>(arguments.test_file, meta);
+            seqan3::debug_stream << "Test matches\t" << test.size() << '\n';
+
+            seqan3::debug_stream << "dname\ttrue-match-count\ttest-match-count\n";
+            auto sequences = meta.sequences;
+            std::sort(sequences.begin(), sequences.end(), valik::minimal_metadata::fasta_order());
+            
+            auto truth_ref_begin = truth.begin();
+            auto truth_ref_end = truth.end();
+            auto test_ref_begin = test.begin();
+            auto test_ref_end = test.end();
+            std::vector<uint8_t> test_found_matches(test.size(), 0);
+
+            uint64_t true_positive_count{0};
+            std::vector<truth_match_t> false_negatives;
+            std::vector<test_match_t> false_positives;
+            for (auto & seq : sequences)
+            {
+                std::string const & current_ref_id = seq.id;
+                seqan3::debug_stream << current_ref_id << '\t';
+                auto is_next_ref = [&](auto match) { return match.dname != current_ref_id ;};
+                auto truth_ref_end = std::find_if(truth_ref_begin, truth.end(), is_next_ref);
+                auto test_ref_end = std::find_if(test_ref_begin, test.end(), is_next_ref);
+                seqan3::debug_stream << truth_ref_end - truth_ref_begin << '\t' << test_ref_end - test_ref_begin << '\n';
+
+                for (auto true_match_it = truth_ref_begin; true_match_it != truth_ref_end; true_match_it++)
+                {
+                    auto const & true_match = *true_match_it;
+                    bool only_in_truth_set{true};
+                    for (auto test_match_it = test_ref_begin; test_match_it != test_ref_end; test_match_it++)
+                    {
+                        auto const & test_match = *test_match_it;
+                        size_t test_ind = std::distance(test.begin(), test_match_it);
+                            
+                        if (matches_overlap(true_match, test_match, arguments.min_overlap))
+                        {
+                            if (test_found_matches[test_ind] == 0)
+                                true_positive_count++;
+
+                            test_found_matches[test_ind] = 1;                            
+                            only_in_truth_set = false;
+                            //break;
+                        }    
+                    }
+                    if (only_in_truth_set)
+                        false_negatives.push_back(true_match);    
+                }
+
+                truth_ref_begin = truth_ref_end;
+                test_ref_begin = test_ref_end;
+            }
+
+
+            for (size_t i{0}; i < test.size(); i++)
+            {
+                if (test_found_matches[i] == 0)
+                    false_positives.push_back(test[i]);
+            }
+
+            seqan3::debug_stream << "Accuracy report\n"; 
+            seqan3::debug_stream << "True positives\t" << true_positive_count << '\n';
+            seqan3::debug_stream << "False positives\t" << false_positives.size() << '\n';
+            seqan3::debug_stream << "False negatives\t" << false_negatives.size() << '\n';
+
+            std::filesystem::path false_negative_out = arguments.truth_file;
+            false_negative_out.replace_extension("only" + arguments.truth_file.extension().string());
+            std::filesystem::path false_positive_out = arguments.test_file;
+            false_positive_out.replace_extension("only" + arguments.test_file.extension().string());
+
+            valik::write_alignment_output(false_negative_out, false_negatives);            
+            valik::write_alignment_output(false_positive_out, false_positives);
+
+        }, (arguments.test_file.extension() == ".gff"));
+
+    }, (arguments.truth_file.extension() == ".gff"));
+
 }
