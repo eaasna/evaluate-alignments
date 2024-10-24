@@ -4,7 +4,10 @@
 
 #include <sharg/all.hpp>
 
-#include "fastq_conversion.hpp"
+#include <valik/argument_parsing/validators.hpp>
+
+#include "search_accuracy.hpp"
+#include "missed_match_profile.hpp"
 
 int main(int argc, char ** argv)
 {
@@ -12,26 +15,42 @@ int main(int argc, char ** argv)
     configuration config{};
 
     // Parser
-    sharg::parser parser{"Fastq-to-Fasta-Converter", argc, argv};
+    sharg::parser parser{"Alignment-Evaluator", argc, argv};
 
     // General information.
-    parser.info.author = "SeqAn-Team";
+    parser.info.author = "Evelin Aasna";
     parser.info.version = "1.0.0";
 
-    // Positional option: The FASTQ file to convert.
-    parser.add_positional_option(config.fastq_input,
-                                 sharg::config{.description = "The FASTQ file to convert.",
-                                               .validator = sharg::input_file_validator{{"fq", "fastq"}}});
-
-    // Open: Output FASTA file. Default: print to terminal - handled in fastq_conversion.cpp.
-    parser.add_option(config.fasta_output,
+    parser.add_option(config.truth_file,
+                      sharg::config{.short_id = '\0',
+                                    .long_id = "truth",
+                                    .description = "The ground truth.",
+                                    .validator = sharg::input_file_validator{{"gff", "txt"}}});
+    parser.add_option(config.test_file,
+                      sharg::config{.short_id = '\0',
+                                    .long_id = "test",
+                                    .description = "The alignments to evaluate.",
+                                    .validator = sharg::input_file_validator{{"gff", "txt"}}});
+    parser.add_option(config.ref_meta,
+                      sharg::config{.short_id = '\0',
+                                    .long_id = "ref-meta",
+                                    .description = "The reference metadata from valik split.",
+                                    .validator = sharg::input_file_validator{{}}});
+    parser.add_option(config.min_len,
+                      sharg::config{.short_id = 'l',
+                                    .long_id = "min-len",
+                                    .description = "The minimum length of an epsilon match.",
+                                    .validator = valik::app::positive_integer_validator{true}});
+    parser.add_option(config.error_rate,
+                      sharg::config{.short_id = 'e',
+                                    .long_id = "error-rate",
+                                    .description = "The upper bound for the maximum allowed error rate of an epsilon match.",
+                                    .validator = sharg::arithmetic_range_validator{0.0f, 0.1f}});
+    parser.add_option(config.out_file,
                       sharg::config{.short_id = 'o',
-                                    .long_id = "output",
-                                    .description = "The output FASTA file.",
-                                    .default_message = "Print to terminal (stdout)",
-                                    .validator = sharg::output_file_validator{}});
-
-    // Flag: Verose output.
+                                    .long_id = "out",
+                                    .description = "The missed alignments.",
+                                    .validator = sharg::output_file_validator{{"gff", "txt"}}});
     parser.add_flag(
         config.verbose,
         sharg::config{.short_id = 'v', .long_id = "verbose", .description = "Give more detailed information."});
@@ -46,10 +65,7 @@ int main(int argc, char ** argv)
         return -1;
     }
 
-    convert_fastq(config); // Call fastq to fasta converter.
-
-    if (config.verbose) // If flag is set.
-        std::cerr << "Conversion was a success. Congrats!\n";
+    search_accuracy(config);
 
     return 0;
 }

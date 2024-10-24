@@ -6,11 +6,10 @@ cmake_minimum_required (VERSION 3.25)
 
 # An object library (without main) to be used in multiple targets.
 # You can add more external include paths of other projects that are needed for your project.
-add_library ("${PROJECT_NAME}_lib" STATIC fastq_conversion.cpp)
+add_library ("${PROJECT_NAME}_lib" STATIC search_accuracy.cpp)
 target_include_directories ("${PROJECT_NAME}_lib" PUBLIC "${${PROJECT_NAME}_SOURCE_DIR}/include")
-target_link_libraries ("${PROJECT_NAME}_lib" PUBLIC seqan3::seqan3 sharg::sharg seqan::hibf
-                                                    fmindex-collection::fmindex-collection
-)
+target_link_libraries ("${PROJECT_NAME}_lib" PUBLIC seqan3::seqan3 sharg::sharg)
+target_include_directories ("${PROJECT_NAME}_lib" SYSTEM INTERFACE ../lib/valik/include)
 target_compile_options ("${PROJECT_NAME}_lib" PUBLIC "-pedantic" "-Wall" "-Wextra")
 
 # Add the application.

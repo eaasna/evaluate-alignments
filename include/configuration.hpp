@@ -8,7 +8,11 @@
 
 struct configuration
 {
-    std::filesystem::path fastq_input{};
-    std::filesystem::path fasta_output{};
-    bool verbose{}; // Default is false.
+    std::filesystem::path truth_file{};
+    std::filesystem::path test_file{};
+    std::filesystem::path ref_meta{};
+    size_t min_len{};
+    double error_rate{};
+    std::filesystem::path out_file{};
+    bool verbose{};
 };
