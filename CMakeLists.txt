@@ -5,7 +5,7 @@
 cmake_minimum_required (VERSION 3.25)
 
 # Define the application name and version.
-project (app-template
+project (evaluate
          LANGUAGES CXX
          VERSION 1.0.0
          DESCRIPTION "My application description"
