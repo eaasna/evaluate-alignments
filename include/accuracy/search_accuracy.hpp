@@ -40,13 +40,6 @@ auto get_sorted_alignments(std::filesystem::path const & in, valik::minimal_meta
     return alignments;
 }
 
-template <bool is_gff>
-auto sort_alignments(std::filesystem::path const & in, valik::minimal_metadata const & meta)
-{
-    using match_t = std::conditional_t<is_gff, valik::stellar_match, blast_match>;
-    return valik::read_alignment_output<match_t>(in, meta);
-}
-
 /*! \brief Function that find the number of overlapping alignments.
  *  \param arguments The command line arguments.
  */

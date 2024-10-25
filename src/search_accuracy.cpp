@@ -13,6 +13,7 @@ void runtime_to_compile_time(func_t const & func, bool b1)
         func.template operator()<false>();
 }
 
+// ./evaluate --truth ../test/data/truth.gff --test ../test/data/test.gff --ref-meta ../test/data/meta.bin
 void search_accuracy(accuracy_arguments const & arguments)
 {
     valik::minimal_metadata meta(arguments.ref_meta);    
@@ -88,7 +89,16 @@ void search_accuracy(accuracy_arguments const & arguments)
             seqan3::debug_stream << "Accuracy report\n"; 
             seqan3::debug_stream << "True positives\t" << true_positive_count << '\n';
             seqan3::debug_stream << "False positives\t" << false_positives.size() << '\n';
-            seqan3::debug_stream << "False negatives\t" << false_negatives.size() << '\n';            
+            seqan3::debug_stream << "False negatives\t" << false_negatives.size() << '\n';
+
+            std::filesystem::path false_negative_out = arguments.truth_file;
+            false_negative_out.replace_extension("only" + arguments.truth_file.extension().string());
+            std::filesystem::path false_positive_out = arguments.test_file;
+            false_positive_out.replace_extension("only" + arguments.test_file.extension().string());
+
+            valik::write_alignment_output(false_negative_out, false_negatives);            
+            valik::write_alignment_output(false_positive_out, false_positives);
+
         }, (arguments.test_file.extension() == ".gff"));
 
     }, (arguments.truth_file.extension() == ".gff"));
