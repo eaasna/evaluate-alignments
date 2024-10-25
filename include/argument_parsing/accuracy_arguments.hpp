@@ -13,6 +13,7 @@ struct accuracy_arguments
     std::filesystem::path test_file{};
     std::filesystem::path ref_meta{};
     size_t min_len{150};
+    size_t min_overlap{50};
     double error_rate{0.025};
     std::filesystem::path out_file{};
     bool verbose{};

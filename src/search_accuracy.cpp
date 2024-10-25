@@ -23,6 +23,9 @@ void search_accuracy(accuracy_arguments const & arguments)
 
         runtime_to_compile_time([&]<bool test_is_gff>()
         {
+            using truth_match_t = std::conditional_t<truth_is_gff, valik::stellar_match, blast_match>;
+            using test_match_t = std::conditional_t<test_is_gff, valik::stellar_match, blast_match>;
+
             auto test = get_sorted_alignments<test_is_gff>(arguments.test_file, meta);
             seqan3::debug_stream << "Test matches\t" << test.size() << '\n';
 
@@ -34,7 +37,11 @@ void search_accuracy(accuracy_arguments const & arguments)
             auto truth_ref_end = truth.end();
             auto test_ref_begin = test.begin();
             auto test_ref_end = test.end();
+            std::vector<uint8_t> test_found_matches(test.size(), 0);
 
+            uint64_t true_positive_count{0};
+            std::vector<truth_match_t> false_negatives;
+            std::vector<test_match_t> false_positives;
             for (auto & seq : sequences)
             {
                 std::string const & current_ref_id = seq.id;
@@ -43,10 +50,45 @@ void search_accuracy(accuracy_arguments const & arguments)
                 auto truth_ref_end = std::find_if(truth_ref_begin, truth.end(), is_next_ref);
                 auto test_ref_end = std::find_if(test_ref_begin, test.end(), is_next_ref);
                 seqan3::debug_stream << truth_ref_end - truth_ref_begin << '\t' << test_ref_end - test_ref_begin << '\n';
+
+                for (auto true_match_it = truth_ref_begin; true_match_it != truth_ref_end; true_match_it++)
+                {
+                    auto const & true_match = *true_match_it;
+                    bool only_in_truth_set{true};
+                    for (auto test_match_it = test_ref_begin; test_match_it != test_ref_end; test_match_it++)
+                    {
+                        auto const & test_match = *test_match_it;
+                        size_t test_ind = &test_match - &*test.begin();
+                            
+                        if (matches_overlap(true_match, test_match, arguments.min_len, arguments.min_overlap))
+                        {
+                            if (test_found_matches[test_ind] == 0)
+                                true_positive_count++;
+
+                            test_found_matches[test_ind] = 1;                            
+                            only_in_truth_set = false;
+                            //break;
+                        }    
+                    }
+                    if (only_in_truth_set)
+                        false_negatives.push_back(true_match);    
+                }
+
                 truth_ref_begin = truth_ref_end;
                 test_ref_begin = test_ref_end;
             }
 
+
+            for (size_t i{0}; i < test.size(); i++)
+            {
+                if (test_found_matches[i] == 0)
+                    false_positives.push_back(test[i]);
+            }
+
+            seqan3::debug_stream << "Accuracy report\n"; 
+            seqan3::debug_stream << "True positives\t" << true_positive_count << '\n';
+            seqan3::debug_stream << "False positives\t" << false_positives.size() << '\n';
+            seqan3::debug_stream << "False negatives\t" << false_negatives.size() << '\n';            
         }, (arguments.test_file.extension() == ".gff"));
 
     }, (arguments.truth_file.extension() == ".gff"));

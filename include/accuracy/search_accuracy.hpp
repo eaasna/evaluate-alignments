@@ -15,6 +15,22 @@
 
 #include <seqan3/core/debug_stream.hpp>
 
+/*
+ * @brief Assume that left_match and right_match are from the same reference database. 
+ */
+template <typename l_match_t, typename r_match_t>
+bool matches_overlap(l_match_t const & left_match, r_match_t const & right_match, size_t const min_len, size_t const overlap)
+{
+    //!TODO: add dend; qend; percid; evalue?
+    if ((std::abs((int) (left_match.dbegin - right_match.dbegin)) <= (min_len - overlap)) && 
+        (left_match.qname == right_match.qname) &&
+        (std::abs((int) (left_match.qbegin - right_match.qbegin)) <= (min_len - overlap)) &&
+        (left_match.is_forward_match == right_match.is_forward_match))
+        return true;
+    else
+        return false;
+}
+
 template <bool is_gff>
 auto get_sorted_alignments(std::filesystem::path const & in, valik::minimal_metadata const & meta)
 {
