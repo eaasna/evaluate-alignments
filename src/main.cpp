@@ -24,20 +24,20 @@ int main(int argc, char ** argv)
     parser.add_option(args.truth_file,
                       sharg::config{.short_id = '\0',
                                     .long_id = "truth",
-                                    .required = true,
                                     .description = "The ground truth.",
+                                    .required = true,
                                     .validator = sharg::input_file_validator{{"gff", "txt"}}});
     parser.add_option(args.test_file,
                       sharg::config{.short_id = '\0',
                                     .long_id = "test",
-                                    .required = true,
                                     .description = "The alignments to evaluate.",
+                                    .required = true,
                                     .validator = sharg::input_file_validator{{"gff", "txt"}}});
     parser.add_option(args.ref_meta,
                       sharg::config{.short_id = '\0',
                                     .long_id = "ref-meta",
-                                    .required = true,
                                     .description = "The reference metadata from valik split.",
+                                    .required = true,
                                     .validator = sharg::input_file_validator{{}}});
     parser.add_option(args.min_len,
                       sharg::config{.short_id = 'l',
@@ -52,8 +52,8 @@ int main(int argc, char ** argv)
     parser.add_option(args.out_file,
                       sharg::config{.short_id = 'o',
                                     .long_id = "out",
-                                    .description = "The missed alignments.",
-                                    .validator = sharg::output_file_validator{{"gff", "txt"}}});
+                                    .description = "Search accuracy report.",
+                                    .validator = sharg::output_file_validator{}});
     parser.add_flag(args.verbose,
                     sharg::config{.short_id = 'v',
                                   .long_id = "verbose", 
