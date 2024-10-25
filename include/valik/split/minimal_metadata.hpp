@@ -27,7 +27,7 @@ namespace valik
  *  \param default_seg_len  Default length of a segment that is dynamically updated.
  *  \param segments     Collection of database segments.
  */
-struct metadata
+struct minimal_metadata
 {
     /** !\brief a metadata struct that represents a sequence file.
      *
@@ -178,7 +178,7 @@ struct metadata
         /**
          * @brief Constructor that deserializes a metadata struct from file.
          */
-        metadata(std::filesystem::path const & filepath)
+        minimal_metadata(std::filesystem::path const & filepath)
         {
             load(filepath);
         }
@@ -192,7 +192,7 @@ struct metadata
         {
             auto it = std::find_if(sequences.begin(), sequences.end(), [&](const sequence_stats& seq) { return seq.id == string_id;});
             if (it == sequences.end())
-                throw seqan3::validation_error{"Sequence metadata does not contain sequence " + string_id + " from Stellar output."};
+                throw seqan3::validation_error{"Sequence metadata does not contain sequence " + string_id + " from alignment output."};
             else
                 return (*it).ind;
         }

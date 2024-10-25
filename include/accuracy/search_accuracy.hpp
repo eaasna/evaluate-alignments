@@ -9,14 +9,23 @@
 #include <argument_parsing/accuracy_arguments.hpp>
 #include <accuracy/blast_match.hpp>
 
-#include <valik/split/metadata.hpp>
+#include <valik/split/minimal_metadata.hpp>
 #include <utilities/consolidate/stellar_match.hpp>
 #include <utilities/consolidate/io.hpp>
 
 #include <seqan3/core/debug_stream.hpp>
 
 template <bool is_gff>
-auto get_alignments(std::filesystem::path const & in, valik::metadata const & meta)
+auto get_sorted_alignments(std::filesystem::path const & in, valik::minimal_metadata const & meta)
+{
+    using match_t = std::conditional_t<is_gff, valik::stellar_match, blast_match>;
+    auto alignments = valik::read_alignment_output<match_t>(in, meta);
+    std::sort(alignments.begin(), alignments.end(), std::less<match_t>()); 
+    return alignments;
+}
+
+template <bool is_gff>
+auto sort_alignments(std::filesystem::path const & in, valik::minimal_metadata const & meta)
 {
     using match_t = std::conditional_t<is_gff, valik::stellar_match, blast_match>;
     return valik::read_alignment_output<match_t>(in, meta);

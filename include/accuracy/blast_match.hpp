@@ -1,7 +1,7 @@
 #pragma once
 
 #include <argument_parsing/accuracy_arguments.hpp>
-#include <valik/split/metadata.hpp>
+#include <valik/split/minimal_metadata.hpp>
 
 struct blast_match
 {
@@ -16,7 +16,7 @@ struct blast_match
     uint64_t qbegin{};
     uint64_t qend{};
 
-    blast_match(std::vector<std::string> const & match_vec, valik::metadata const & meta)
+    blast_match(std::vector<std::string> const & match_vec, valik::minimal_metadata const & meta)
     {
         dname = match_vec[0];
 
@@ -73,6 +73,23 @@ struct blast_match
                 return false;
             else
                 return (dend > match.dend);
+        }
+    }
+
+    bool operator < (const blast_match& match) const
+    {
+        if (ref_ind < match.ref_ind)
+            return true;
+        else if (ref_ind > match.ref_ind)
+            return false;
+        else
+        {
+            if (dbegin < match.dbegin)
+                return true;
+            else if (dbegin > match.dbegin)
+                return false;
+            else
+                return (dend < match.dend);
         }
     }
 
