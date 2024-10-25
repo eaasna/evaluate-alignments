@@ -119,6 +119,7 @@ struct blast_match
         else
             match_str += "minus";
 
+        match_str += "\t";
         match_str += evalue;
         match_str += "\t";
         

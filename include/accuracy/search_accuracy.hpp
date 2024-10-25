@@ -31,10 +31,9 @@ bool matches_overlap(l_match_t const & left_match, r_match_t const & right_match
         return false;
 }
 
-template <bool is_gff>
+template <typename match_t>
 auto get_sorted_alignments(std::filesystem::path const & in, valik::minimal_metadata const & meta)
 {
-    using match_t = std::conditional_t<is_gff, valik::stellar_match, blast_match>;
     auto alignments = valik::read_alignment_output<match_t>(in, meta);
     std::sort(alignments.begin(), alignments.end(), std::less<match_t>()); 
     return alignments;

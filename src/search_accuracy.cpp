@@ -19,15 +19,14 @@ void search_accuracy(accuracy_arguments const & arguments)
     valik::minimal_metadata meta(arguments.ref_meta);    
     runtime_to_compile_time([&]<bool truth_is_gff>()
     {
-        auto truth = get_sorted_alignments<truth_is_gff>(arguments.truth_file, meta);
+        using truth_match_t = std::conditional_t<truth_is_gff, valik::stellar_match, blast_match>;
+        auto truth = get_sorted_alignments<truth_match_t>(arguments.truth_file, meta);
         seqan3::debug_stream << "Truth matches\t" << truth.size() << '\n';
 
         runtime_to_compile_time([&]<bool test_is_gff>()
         {
-            using truth_match_t = std::conditional_t<truth_is_gff, valik::stellar_match, blast_match>;
             using test_match_t = std::conditional_t<test_is_gff, valik::stellar_match, blast_match>;
-
-            auto test = get_sorted_alignments<test_is_gff>(arguments.test_file, meta);
+            auto test = get_sorted_alignments<test_match_t>(arguments.test_file, meta);
             seqan3::debug_stream << "Test matches\t" << test.size() << '\n';
 
             seqan3::debug_stream << "dname\ttrue-match-count\ttest-match-count\n";
