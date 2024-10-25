@@ -6,7 +6,7 @@
 
 #include <valik/argument_parsing/validators.hpp>
 
-#include <search_accuracy.hpp>
+#include <accuracy/search_accuracy.hpp>
 #include <missed_match_profile.hpp>
 
 int main(int argc, char ** argv)
@@ -66,7 +66,7 @@ int main(int argc, char ** argv)
         return -1;
     }
 
-    search_accuracy(config);
+    search_accuracy(args);
 
     return 0;
 }
