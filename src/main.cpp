@@ -54,6 +54,11 @@ int main(int argc, char ** argv)
                                     .long_id = "error-rate",
                                     .description = "The upper bound for the maximum allowed error rate of an epsilon match.",
                                     .validator = sharg::arithmetic_range_validator{0.0f, 0.1f}});
+    parser.add_option(arguments.numMatches,
+                      sharg::config{.short_id = '\0',
+                                    .long_id = "numMatches",
+                                    .description = "Number of matches to keep per query sequence.",
+                                    .validator = valik::app::positive_integer_validator{false}});
     parser.add_option(arguments.out_file,
                       sharg::config{.short_id = '\0',
                                     .long_id = "out",

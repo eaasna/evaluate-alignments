@@ -12,6 +12,7 @@
 #include <valik/split/minimal_metadata.hpp>
 #include <utilities/consolidate/stellar_match.hpp>
 #include <utilities/consolidate/io.hpp>
+#include <utilities/consolidate/consolidate_matches.hpp>
 
 #include <seqan3/core/debug_stream.hpp>
 

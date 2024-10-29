@@ -15,6 +15,8 @@ struct accuracy_arguments
     size_t min_len{150};
     size_t min_overlap{50};
     double error_rate{0.025};
+    size_t numMatches{0};
+    size_t disableThresh{std::numeric_limits<size_t>::max()};
     std::filesystem::path out_file{};
     bool verbose{};
 };
