@@ -21,10 +21,16 @@ void search_accuracy(accuracy_arguments const & arguments)
     {
         using truth_match_t = std::conditional_t<truth_is_gff, valik::stellar_match, blast_match>;
         auto truth = get_sorted_alignments<truth_match_t>(arguments.truth_file, meta);
-        seqan3::debug_stream << "Truth matches\t" << truth.size() << '\n';
+        if (arguments.verbose)
+            seqan3::debug_stream << "Truth matches\t" << truth.size() << '\n';
 
         if ((arguments.numMatches > 0) && (std::is_same<truth_match_t, valik::stellar_match>()))
+        {
             valik::custom::consolidate_matches(truth, arguments);
+            if (arguments.verbose)
+                seqan3::debug_stream << "Truth matches after consolidation\t" << truth.size() << '\n';
+            std::sort(truth.begin(), truth.end(), std::less<truth_match_t>()); 
+        }
 
         runtime_to_compile_time([&]<bool test_is_gff>()
         {
@@ -33,9 +39,14 @@ void search_accuracy(accuracy_arguments const & arguments)
             seqan3::debug_stream << "Test matches\t" << test.size() << '\n';
 
             if ((arguments.numMatches > 0) && (std::is_same<test_match_t, valik::stellar_match>()))
+            {
                 valik::custom::consolidate_matches(test, arguments);
+                if (arguments.verbose)
+                    seqan3::debug_stream << "Test matches after consolidation\t" << test.size() << '\n';
+            }
 
-            seqan3::debug_stream << "dname\ttrue-match-count\ttest-match-count\n";
+            if (arguments.verbose)
+                seqan3::debug_stream << "dname\ttrue-match-count\ttest-match-count\n";
             auto sequences = meta.sequences;
             std::sort(sequences.begin(), sequences.end(), valik::minimal_metadata::fasta_order());
             
@@ -51,11 +62,15 @@ void search_accuracy(accuracy_arguments const & arguments)
             for (auto & seq : sequences)
             {
                 std::string const & current_ref_id = seq.id;
-                seqan3::debug_stream << current_ref_id << '\t';
+                if (arguments.verbose)
+                    seqan3::debug_stream << current_ref_id << '\t';
                 auto is_next_ref = [&](auto match) { return match.dname != current_ref_id ;};
                 auto truth_ref_end = std::find_if(truth_ref_begin, truth.end(), is_next_ref);
                 auto test_ref_end = std::find_if(test_ref_begin, test.end(), is_next_ref);
-                seqan3::debug_stream << truth_ref_end - truth_ref_begin << '\t' << test_ref_end - test_ref_begin << '\n';
+                
+            
+                if (arguments.verbose)
+                    seqan3::debug_stream << truth_ref_end - truth_ref_begin << '\t' << test_ref_end - test_ref_begin << '\n';
 
                 for (auto true_match_it = truth_ref_begin; true_match_it != truth_ref_end; true_match_it++)
                 {
@@ -96,8 +111,8 @@ void search_accuracy(accuracy_arguments const & arguments)
             seqan3::debug_stream << "False positives\t" << false_positives.size() << '\n';
             seqan3::debug_stream << "False negatives\t" << false_negatives.size() << '\n';
 
-            std::filesystem::path false_negative_out = arguments.truth_file;
-            false_negative_out.replace_extension("only" + arguments.truth_file.extension().string());
+            std::filesystem::path false_negative_out = arguments.test_file;
+            false_negative_out.replace_extension("missing" + arguments.test_file.extension().string());
             std::filesystem::path false_positive_out = arguments.test_file;
             false_positive_out.replace_extension("only" + arguments.test_file.extension().string());
 

@@ -19,7 +19,6 @@ void consolidate_matches(std::vector<stellar_match> & matches, accuracy_argument
 {
     //auto before_duplicate_removal = matches.size();
     std::sort(matches.begin(), matches.end(), std::greater<stellar_match>());
-    matches.erase( std::unique( matches.begin(), matches.end() ), matches.end() );
 
     //seqan3::debug_stream << before_duplicate_removal << '\t' << matches.size() << '\n';
     // <query_ind, <refs>>
@@ -85,6 +84,7 @@ void consolidate_matches(std::vector<stellar_match> & matches, accuracy_argument
         seqan3::debug_stream << "Disabled " << disabled_queries.size() << " queries.\n";
     
     matches = consolidated_matches;
+    std::sort(matches.begin(), matches.end(), std::less<stellar_match>()); 
 }
 
 void consolidate_matches(std::vector<blast_match> &, accuracy_arguments const &) { }
