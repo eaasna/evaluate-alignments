@@ -9,7 +9,7 @@
 #include <argument_parsing/accuracy_arguments.hpp>
 #include <accuracy/blast_match.hpp>
 
-#include <valik/split/minimal_metadata.hpp>
+#include <valik/split/metadata.hpp>
 #include <utilities/consolidate/stellar_match.hpp>
 #include <utilities/consolidate/io.hpp>
 #include <utilities/consolidate/consolidate_matches.hpp>
@@ -68,7 +68,7 @@ bool matches_overlap(l_match_t const & left_match, r_match_t const & right_match
 }
 
 template <typename match_t>
-auto get_sorted_alignments(std::filesystem::path const & in, valik::minimal_metadata const & meta)
+auto get_sorted_alignments(std::filesystem::path const & in, valik::custom::metadata const & meta)
 {
     auto alignments = valik::read_alignment_output<match_t>(in, meta);
     std::sort(alignments.begin(), alignments.end(), std::less<match_t>()); 

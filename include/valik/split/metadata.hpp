@@ -14,7 +14,7 @@
 #include <cereal/types/vector.hpp>
 #include <cereal/types/string.hpp>
 
-namespace valik
+namespace valik::custom
 {
 
 /**
@@ -27,7 +27,7 @@ namespace valik
  *  \param default_seg_len  Default length of a segment that is dynamically updated.
  *  \param segments     Collection of database segments.
  */
-struct minimal_metadata
+struct metadata
 {
     /** !\brief a metadata struct that represents a sequence file.
      *
@@ -178,7 +178,7 @@ struct minimal_metadata
         /**
          * @brief Constructor that deserializes a metadata struct from file.
          */
-        minimal_metadata(std::filesystem::path const & filepath)
+        metadata(std::filesystem::path const & filepath)
         {
             load(filepath);
         }
@@ -276,4 +276,4 @@ struct minimal_metadata
         }
 };
 
-} // namespace valik
+} // namespace valik::custom

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <utilities/shared.hpp>
-#include <valik/split/minimal_metadata.hpp>
+#include <valik/split/metadata.hpp>
 
 namespace valik
 {
@@ -19,7 +19,7 @@ struct stellar_match
     uint64_t qend{};
     std::string alignment_attributes{};
 
-    stellar_match(std::vector<std::string> const & match_vec, minimal_metadata const & meta)
+    stellar_match(std::vector<std::string> const & match_vec, valik::custom::metadata const & meta)
     {
         dname = match_vec[0];
 

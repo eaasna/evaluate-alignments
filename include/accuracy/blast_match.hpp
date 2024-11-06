@@ -1,7 +1,7 @@
 #pragma once
 
 #include <argument_parsing/accuracy_arguments.hpp>
-#include <valik/split/minimal_metadata.hpp>
+#include <valik/split/metadata.hpp>
 
 struct blast_match
 {
@@ -16,7 +16,7 @@ struct blast_match
     uint64_t qbegin{};
     uint64_t qend{};
 
-    blast_match(std::vector<std::string> const & match_vec, valik::minimal_metadata const & meta)
+    blast_match(std::vector<std::string> const & match_vec, valik::custom::metadata const & meta)
     {
         dname = match_vec[0];
 

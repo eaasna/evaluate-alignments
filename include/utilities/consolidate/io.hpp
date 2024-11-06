@@ -2,7 +2,7 @@
 
 #include <filesystem>
 
-#include <valik/split/minimal_metadata.hpp>
+#include <valik/split/metadata.hpp>
 #include <utilities/shared.hpp>
 
 namespace valik
@@ -10,7 +10,7 @@ namespace valik
 
 template <typename match_t>
 std::vector<match_t> read_alignment_output(std::filesystem::path const & match_path,
-                                           minimal_metadata const & meta,
+                                           valik::custom::metadata const & meta,
                                            std::ios_base::openmode const mode = std::ios_base::in)
 {
     std::vector<match_t> matches;

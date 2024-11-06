@@ -16,7 +16,7 @@ void runtime_to_compile_time(func_t const & func, bool b1)
 // ./evaluate --truth ../test/data/truth.gff --test ../test/data/test.gff --ref-meta ../test/data/meta.bin
 void search_accuracy(accuracy_arguments const & arguments)
 {
-    valik::minimal_metadata meta(arguments.ref_meta);    
+    valik::custom::metadata meta(arguments.ref_meta);    
     runtime_to_compile_time([&]<bool truth_is_gff>()
     {
         using truth_match_t = std::conditional_t<truth_is_gff, valik::stellar_match, blast_match>;
@@ -46,9 +46,9 @@ void search_accuracy(accuracy_arguments const & arguments)
             }
 
             if (arguments.verbose)
-                seqan3::debug_stream << "dname\ttrue-match-count\ttest-match-count\n";
+                seqan3::debug_stream << "dname\tfirst-bin\tlast-bin\ttrue-match-count\ttest-match-count\n";
             auto sequences = meta.sequences;
-            std::sort(sequences.begin(), sequences.end(), valik::minimal_metadata::fasta_order());
+            std::sort(sequences.begin(), sequences.end(), valik::custom::metadata::fasta_order());
             
             auto truth_ref_begin = truth.begin();
             auto truth_ref_end = truth.end();
@@ -63,7 +63,23 @@ void search_accuracy(accuracy_arguments const & arguments)
             {
                 std::string const & current_ref_id = seq.id;
                 if (arguments.verbose)
+                {
                     seqan3::debug_stream << current_ref_id << '\t';
+
+                    valik::custom::metadata::segment_stats last_seg;  
+                    bool seen_first{false};
+                    for (auto seg : meta.segments_from_ind(meta.ind_from_id(current_ref_id)))
+                    {
+                        if (!seen_first)
+                        {
+                            seqan3::debug_stream << seg.id << '\t';
+                            seen_first = true;
+                        }
+                        //!TODO: something goes wrong with last it
+                        last_seg = seg; 
+                    }
+                    seqan3::debug_stream << last_seg.id << '\t';
+                }
                 auto is_next_ref = [&](auto match) { return match.dname != current_ref_id ;};
                 auto truth_ref_end = std::find_if(truth_ref_begin, truth.end(), is_next_ref);
                 auto test_ref_end = std::find_if(test_ref_begin, test.end(), is_next_ref);
