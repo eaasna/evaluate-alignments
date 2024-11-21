@@ -11,7 +11,8 @@ include (test/config)
 # This includes `test/data/datasources.cmake`, which makes test data available to the tests.
 include (data/datasources.cmake)
 
-add_app_test (api_fastq_coversion_test.cpp)
-add_app_test (cli_fastq_coversion_test.cpp)
+add_app_test (api_matches_overlap_test.cpp)
+add_app_test (cli_argument_parsing_test.cpp)
+add_app_test (cli_alignment_evaluation_test.cpp)
 
 message (STATUS "You can run `make check` to build and run tests.")

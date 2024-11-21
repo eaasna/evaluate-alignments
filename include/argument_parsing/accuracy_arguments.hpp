@@ -17,6 +17,6 @@ struct accuracy_arguments
     double error_rate{0.025};
     size_t numMatches{0};
     size_t disableThresh{std::numeric_limits<size_t>::max()};
-    std::filesystem::path out_file{};
+    std::filesystem::path out;
     bool verbose{};
 };

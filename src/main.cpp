@@ -59,10 +59,10 @@ int main(int argc, char ** argv)
                                     .long_id = "numMatches",
                                     .description = "Number of matches to keep per query sequence.",
                                     .validator = valik::app::positive_integer_validator{false}});
-    parser.add_option(arguments.out_file,
+    parser.add_option(arguments.out,
                       sharg::config{.short_id = '\0',
                                     .long_id = "out",
-                                    .description = "Search accuracy report.",
+                                    .description = "Output prefix.",
                                     .validator = sharg::output_file_validator{}});
     parser.add_flag(arguments.verbose,
                     sharg::config{.short_id = 'v',
@@ -81,6 +81,12 @@ int main(int argc, char ** argv)
 
     if (arguments.min_overlap > arguments.min_len)
         throw seqan3::argument_parser_error("Minimum overlap " + std::to_string(arguments.min_overlap) + " can not be larger than the minimum length " + std::to_string(arguments.min_len));
+
+    if (!parser.is_option_set("out"))
+    {
+        arguments.out = arguments.test_file;
+        arguments.out.replace_extension("");
+    }
 
     search_accuracy(arguments);
 

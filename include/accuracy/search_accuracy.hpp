@@ -27,9 +27,18 @@ bool matches_overlap(l_match_t const & left_match, r_match_t const & right_match
         (left_match.is_forward_match == right_match.is_forward_match))
     {
 
+        /*
+
+        left is bigger | is before | result
+                1      |     1     |    1
+                0      |     1     |    0
+                1      |     0     |    0
+                0      |     0     |    1
+        
+        */
         auto dinterval = [&](auto const is_before) -> std::pair<uint64_t, uint64_t>
         {
-            if ((left_match.dbegin > right_match.dbegin) && is_before)
+            if ((bool)(left_match.dbegin > right_match.dbegin) == is_before)
                 return std::make_pair(right_match.dbegin, right_match.dend);
             else 
                 return std::make_pair(left_match.dbegin, left_match.dend);
@@ -37,7 +46,7 @@ bool matches_overlap(l_match_t const & left_match, r_match_t const & right_match
 
         auto qinterval = [&](auto const is_before) -> std::pair<uint64_t, uint64_t>
         {
-            if ((left_match.qbegin > right_match.qbegin) && is_before)
+            if ((bool)(left_match.qbegin > right_match.qbegin) == is_before)
                 return std::make_pair(right_match.qbegin, right_match.qend);
             else
                 return std::make_pair(left_match.qbegin, left_match.qend);
@@ -46,14 +55,11 @@ bool matches_overlap(l_match_t const & left_match, r_match_t const & right_match
         auto dbegins_before = dinterval(true);
         auto dbegins_later = dinterval(false);
 
-        if (((dbegins_before.second - dbegins_later.first) >= overlap) &&
-            (dbegins_before.second >= dbegins_later.second)) // longer match overlaps other completely
+        if ((int64_t) (dbegins_before.second - dbegins_later.first) >= (int64_t) overlap)
         {
             auto qbegins_before = qinterval(true);
             auto qbegins_later = qinterval(false);
-
-            if (((qbegins_before.second - qbegins_later.first) >= overlap) &&
-                (qbegins_before.second >= qbegins_later.second)) // longer match overlaps other completely
+            if ((int64_t)(qbegins_before.second - qbegins_later.first) >= (int64_t) overlap)
             {
                 return true;
             }
