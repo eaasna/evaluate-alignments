@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2006-2024 Knut Reinert & Freie Universität Berlin
+// SPDX-FileCopyrightText: 2016-2024 Knut Reinert & MPI für molekulare Genetik
+// SPDX-License-Identifier: CC0-1.0
+
 #pragma once
 
 #include <seqan3/argument_parser/exceptions.hpp>
@@ -24,7 +28,6 @@ namespace valik::custom
  *  \param seg_count    Database was divided into this many segments.
  *  \param sequences    Collection of database sequences.
  *  \param ibf_fpr  FPR of a k-mer query in the IBF.
- *  \param default_seg_len  Default length of a segment that is dynamically updated.
  *  \param segments     Collection of database segments.
  */
 struct metadata
@@ -169,11 +172,6 @@ struct metadata
     std::vector<sequence_file> files;
     std::vector<sequence_stats> sequences;
     std::vector<segment_stats> segments;
-
-    private:    
-        size_t default_seg_len;
-
-    public:
 
         /**
          * @brief Constructor that deserializes a metadata struct from file.
