@@ -32,7 +32,13 @@ struct blast_match
         percid = match_vec[3];
 
         if (match_vec[4] == "minus")
+        {
             is_forward_match = false;
+            auto tmp = dbegin;
+            dbegin = dend;
+            dend = tmp;
+        }
+            
         
         evalue = match_vec[5];
         
