@@ -116,9 +116,18 @@ struct blast_match
     {
         std::string match_str = dname;
         match_str += "\t";
-        match_str += std::to_string(dbegin);
-        match_str += "\t";
-        match_str += std::to_string(dend);
+        if (is_forward_match)
+        {
+            match_str += std::to_string(dbegin);
+            match_str += "\t";
+            match_str += std::to_string(dend);
+        }
+        else
+        {
+            match_str += std::to_string(dend);
+            match_str += "\t";
+            match_str += std::to_string(dbegin);            
+        }
         match_str += "\t";
         match_str += percid;
 
