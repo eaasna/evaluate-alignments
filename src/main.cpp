@@ -26,13 +26,13 @@ int main(int argc, char ** argv)
                                     .long_id = "truth",
                                     .description = "The ground truth.",
                                     .required = true,
-                                    .validator = sharg::input_file_validator{{"gff", "txt"}}});
+                                    .validator = sharg::input_file_validator{{"gff", "txt", "bed"}}});
     parser.add_option(arguments.test_file,
                       sharg::config{.short_id = '\0',
                                     .long_id = "test",
                                     .description = "The alignments to evaluate.",
                                     .required = true,
-                                    .validator = sharg::input_file_validator{{"gff", "txt"}}});
+                                    .validator = sharg::input_file_validator{{"gff", "txt", "bed"}}});
     parser.add_option(arguments.ref_meta,
                       sharg::config{.short_id = '\0',
                                     .long_id = "ref-meta",
@@ -84,8 +84,9 @@ int main(int argc, char ** argv)
 
     if (!parser.is_option_set("out"))
     {
-        arguments.out = arguments.test_file;
-        arguments.out.replace_extension("");
+        // do not use replace_extension() in case there are multiple extensions
+        size_t lastext = std::string{arguments.test_file}.find_last_of("."); 
+        arguments.out = std::string{arguments.test_file}.substr(0, lastext); 
     }
 
     search_accuracy(arguments);

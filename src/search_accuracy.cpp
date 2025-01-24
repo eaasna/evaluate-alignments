@@ -135,9 +135,12 @@ void search_accuracy(accuracy_arguments const & arguments)
         seqan3::debug_stream << "False negatives\t" << false_negatives.size() << '\n';
 
         std::filesystem::path false_negative_out = arguments.out;
-        false_negative_out.replace_extension("fn" + arguments.truth_file.extension().string());
+        false_negative_out += ".fn";
+        false_negative_out += arguments.truth_file.extension().string();
+
         std::filesystem::path false_positive_out = arguments.out;
-        false_positive_out.replace_extension("fp" + arguments.test_file.extension().string());
+        false_positive_out += ".fp";
+        false_positive_out += arguments.test_file.extension().string();
 
         valik::write_alignment_output(false_negative_out, false_negatives);            
         valik::write_alignment_output(false_positive_out, false_positives);
