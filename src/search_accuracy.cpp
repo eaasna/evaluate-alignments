@@ -56,7 +56,7 @@ void search_accuracy(accuracy_arguments const & arguments)
         }
 
         if (arguments.verbose)
-            seqan3::debug_stream << "dname\tfirst-bin\tlast-bin\ttrue-match-count\ttest-match-count\n";
+            seqan3::debug_stream << "dname\ttrue-match-count\ttest-match-count\n";
         auto sequences = meta.sequences;
         std::sort(sequences.begin(), sequences.end(), valik::custom::metadata::fasta_order());
             
@@ -66,6 +66,7 @@ void search_accuracy(accuracy_arguments const & arguments)
 
         uint64_t true_positive_count{0};
         std::vector<truth_match_t> false_negatives;
+        std::vector<truth_match_t> true_positives;
         std::vector<test_match_t> false_positives;
         for (auto & seq : sequences)
         {
@@ -73,20 +74,6 @@ void search_accuracy(accuracy_arguments const & arguments)
             if (arguments.verbose)
             {
                 seqan3::debug_stream << current_ref_id << '\t';
-
-                valik::custom::metadata::segment_stats last_seg;  
-                bool seen_first{false};
-                for (auto seg : meta.segments_from_ind(meta.ind_from_id(current_ref_id)))
-                {
-                    if (!seen_first)
-                    {
-                        seqan3::debug_stream << seg.id << '\t';
-                        seen_first = true;
-                    }
-                    //!TODO: something goes wrong with last it
-                    last_seg = seg; 
-                }
-                seqan3::debug_stream << last_seg.id << '\t';
             }
             auto is_next_ref = [&](auto match) { return match.dname != current_ref_id ;};
             auto truth_ref_end = std::find_if(truth_ref_begin, truth.end(), is_next_ref);
@@ -115,7 +102,9 @@ void search_accuracy(accuracy_arguments const & arguments)
                     }    
                 }
                 if (only_in_truth_set)
-                    false_negatives.push_back(true_match);    
+                    false_negatives.push_back(true_match);
+                else
+                    true_positives.push_back(true_match);
             }
 
             truth_ref_begin = truth_ref_end;
@@ -138,11 +127,16 @@ void search_accuracy(accuracy_arguments const & arguments)
         false_negative_out += ".fn";
         false_negative_out += arguments.truth_file.extension().string();
 
+        std::filesystem::path true_positives_out = arguments.out;
+        true_positives_out += ".tp";
+        true_positives_out += arguments.truth_file.extension().string();
+
         std::filesystem::path false_positive_out = arguments.out;
         false_positive_out += ".fp";
         false_positive_out += arguments.test_file.extension().string();
 
         valik::write_alignment_output(false_negative_out, false_negatives);            
+        valik::write_alignment_output(true_positives_out, true_positives);            
         valik::write_alignment_output(false_positive_out, false_positives);
 
     }, (arguments.truth_file.extension() == ".gff"), (arguments.test_file.extension() == ".gff"));
