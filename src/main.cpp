@@ -68,6 +68,14 @@ int main(int argc, char ** argv)
                     sharg::config{.short_id = 'v',
                                   .long_id = "verbose", 
                                   .description = "Give more detailed information."});
+    parser.add_flag(arguments.ignore_query,
+                    sharg::config{.short_id = '\0',
+                                  .long_id = "ignore-query", 
+                                  .description = "Do not compare query location. For read mapping"});
+    parser.add_flag(arguments.ignore_strand,
+                    sharg::config{.short_id = '\0',
+                                  .long_id = "ignore-strand", 
+                                  .description = "Do not compare strand. For unphased matches."});
 
     try
     {

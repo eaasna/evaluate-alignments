@@ -91,7 +91,7 @@ void search_accuracy(accuracy_arguments const & arguments)
                     auto const & test_match = *test_match_it;
                     size_t test_ind = std::distance(test.begin(), test_match_it);
                             
-                    if (matches_overlap(true_match, test_match, arguments.min_overlap))
+                    if (matches_overlap(true_match, test_match, arguments.min_overlap, arguments.ignore_strand, arguments.ignore_query))
                     {
                         if (test_found_matches[test_ind] == 0)
                             true_positive_count++;

@@ -19,4 +19,6 @@ struct accuracy_arguments
     size_t disableThresh{std::numeric_limits<size_t>::max()};
     std::filesystem::path out;
     bool verbose{};
+    bool ignore_query{false};
+    bool ignore_strand{false};
 };
