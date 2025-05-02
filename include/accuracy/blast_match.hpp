@@ -32,13 +32,27 @@ struct blast_match
         percid = match_vec[3];
 
         if (match_vec[4] == "minus")
-            is_forward_match = false;
+            is_forward_match = false;            
+        
+        if (dbegin > dend)
+        {
+            if (is_forward_match)
+                throw std::runtime_error("Malformed GFF record: dbegin > dend");
+            std::swap(dbegin, dend);
+        }
         
         evalue = match_vec[5];
         
         qname = match_vec[6];
         qbegin = stoi(match_vec[7]);
-        qend = stoi(match_vec[8]); 
+        qend = stoi(match_vec[8]);
+
+        if (qbegin > qend)
+        {
+            if (is_forward_match)
+                throw std::runtime_error("Malformed GFF record: qbegin > qend");
+            std::swap(qbegin, qend);
+        }
     }
 
     struct length_order

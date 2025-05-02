@@ -119,6 +119,19 @@ TEST_F(evaluate_alignments, gff_db_overlaps_q_overlap_too_short)
     EXPECT_FALSE(matches_overlap(truth_match, test_match, overlap));
 }
 
+TEST_F(evaluate_alignments, gff_minus_strand_swap)
+{
+    valik::custom::metadata meta(data("meta.bin"));
+    size_t const overlap{10};
+
+    std::vector<std::string> truth_vec{"NC_000081.7",   "Stellar", "eps-matches",	"1050",	"900",	"97.7011",	"-",	".",	"2R;seq2Range=0,155;cigar=85M1D8M1I76M1I2M;mutations=87T,94T,171C"};
+    valik::stellar_match truth_match(truth_vec, meta);
+
+    std::vector<std::string> test_vec{"NC_000081.7",   "Stellar", "eps-matches",	"1040",	"1190",	"97.7011",	"-",	".",	"2R;seq2Range=300,145;cigar=85M1D8M1I76M1I2M;mutations=87T,94T,171C"};
+    valik::stellar_match test_match(test_vec, meta);
+    EXPECT_TRUE(matches_overlap(truth_match, test_match, overlap));
+}
+
 TEST_F(evaluate_alignments, gff_opposite_strand)
 {
     valik::custom::metadata meta(data("meta.bin"));
@@ -237,6 +250,19 @@ TEST_F(evaluate_alignments, blast_db_overlaps_q_overlap_too_short)
     std::vector<std::string> test_vec{"NC_000081.7",   "1040",	"1190",	"97.7011",	"plus",	"0.01",	"2R", "150","300"};
     blast_match test_match(test_vec, meta);
     EXPECT_FALSE(matches_overlap(truth_match, test_match, overlap));
+}
+
+TEST_F(evaluate_alignments, blast_minus_strand_swap)
+{
+    valik::custom::metadata meta(data("meta.bin"));
+    size_t const overlap{10};
+
+    std::vector<std::string> truth_vec{"NC_000081.7",   "Stellar", "eps-matches",	"900",	"1050",	"97.7011",	"-",	".",	"2R;seq2Range=155,0;cigar=85M1D8M1I76M1I2M;mutations=87T,94T,171C"};
+    valik::stellar_match truth_match(truth_vec, meta);
+
+    std::vector<std::string> test_vec{"NC_000081.7",   "1190",	"1040",	"97.7011",	"minus",	"0.01",	"2R", "145","300"};
+    blast_match test_match(test_vec, meta);
+    EXPECT_TRUE(matches_overlap(truth_match, test_match, overlap));
 }
 
 TEST_F(evaluate_alignments, blast_opposite_strand)

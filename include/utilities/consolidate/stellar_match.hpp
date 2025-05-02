@@ -31,12 +31,18 @@ struct stellar_match
 
         dbegin = stoi(match_vec[3]);
         dend = stoi(match_vec[4]);
-
         percid = match_vec[5];
 
         if (match_vec[6] == "-")
             is_forward_match = false;
 
+        if (dbegin > dend)
+        {
+            if (is_forward_match)
+                throw std::runtime_error("Malformed GFF record: dbegin > dend");
+            std::swap(dbegin, dend);
+        }
+    
         // Stellar GFF attributes
         // 1;seq2Range=1280,1378;cigar=97M1D2M;mutations=14A,45G,58T,92C
         // OR
@@ -49,6 +55,12 @@ struct stellar_match
             qbegin = stoi(attributes_vec[1].substr(attributes_vec[1].find("=") + 1, 
                                                    attributes_vec[1].find(",") - attributes_vec[1].find("=") - 1));
             qend = stoi(attributes_vec[1].substr(attributes_vec[1].find(",") + 1));
+            if (qbegin > qend)
+            {
+                if (is_forward_match)
+                    throw std::runtime_error("Malformed GFF record: qbegin > qend");
+                std::swap(qbegin, qend);      
+            }
 
             for (auto it = attributes_vec.begin() + 2; it < attributes_vec.end() - 1; it++)
             {
