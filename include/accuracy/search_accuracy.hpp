@@ -20,11 +20,11 @@
  * @brief Assume that left_match and right_match are from the same reference database. 
  */
 template <typename l_match_t, typename r_match_t>
-bool matches_overlap(l_match_t const & left_match, r_match_t const & right_match, size_t const overlap)
+bool matches_overlap(l_match_t const & left_match, r_match_t const & right_match, size_t const overlap, bool const ignore_strand, bool const ignore_query)
 {
     //!TODO: add percid; evalue?
-    if ((left_match.qname == right_match.qname) && 
-        (left_match.is_forward_match == right_match.is_forward_match))
+    if ((ignore_query || (left_match.qname == right_match.qname)) && 
+        (ignore_strand || (left_match.is_forward_match == right_match.is_forward_match)))
     {
 
         /*
@@ -59,7 +59,7 @@ bool matches_overlap(l_match_t const & left_match, r_match_t const & right_match
         {
             auto qbegins_before = qinterval(true);
             auto qbegins_later = qinterval(false);
-            if ((int64_t)(qbegins_before.second - qbegins_later.first) >= (int64_t) overlap)
+            if (ignore_query || ((int64_t)(qbegins_before.second - qbegins_later.first) >= (int64_t) overlap))
             {
                 return true;
             }
